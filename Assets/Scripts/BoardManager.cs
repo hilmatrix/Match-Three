@@ -15,6 +15,7 @@ public class BoardManager : MonoBehaviour
     private Vector2 startPosition;
     private Vector2 endPosition;
     private TileController[,] tiles;
+    private int combo;
 
     private static BoardManager _instance = null;
 
@@ -172,6 +173,8 @@ public class BoardManager : MonoBehaviour
             return;
         }
 
+        combo++;
+        ScoreManager.Instance.IncrementCurrentScore(matchingTiles.Count, combo);
         StartCoroutine(ClearMatches(matchingTiles, ProcessDrop));
     }
 
@@ -265,6 +268,7 @@ public class BoardManager : MonoBehaviour
 
     public void Process() {
         IsProcessing = true;
+        combo = 0;
         ProcessMatches();
     }
 

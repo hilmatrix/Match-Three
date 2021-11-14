@@ -5,6 +5,8 @@ using UnityEngine;
 public class TileController : MonoBehaviour
 {
     public int id;
+    private GameFlowManager game;
+
     private static readonly Color selectedColor = new Color(0.5f, 0.5f, 0.5f);
     private static readonly Color normalColor = Color.white;
 
@@ -18,6 +20,7 @@ public class TileController : MonoBehaviour
 
     private void Awake() {
         board = BoardManager.Instance;
+        game = GameFlowManager.Instance;
         render = GetComponent<SpriteRenderer>();
     }
 
@@ -44,9 +47,11 @@ public class TileController : MonoBehaviour
 
     private void OnMouseDown() {
         // Non Selectable conditions
-        if (render.sprite == null || board.IsAnimating) {
+        if (render.sprite == null || board.IsAnimating || game.IsGameOver) {
             return;
         }
+
+        SoundManager.Instance.PlayTap();
 
         // Already selected this tile?
         if (isSelected) {
@@ -59,7 +64,7 @@ public class TileController : MonoBehaviour
             }
 
             else {
-                // is this an adjacent tile?
+                // is this an adjacent tiles?
                 if (GetAllAdjacentTiles().Contains(previousSelected)) {
                     TileController otherTile = previousSelected;
                     previousSelected.Deselect();
@@ -67,10 +72,10 @@ public class TileController : MonoBehaviour
                     // swap tile
                     SwapTile(otherTile, () => {
                         if (board.GetAllMatches().Count > 0) {
-                            Debug.Log("MATCH FOUND");
                             board.Process();
                         }
                         else {
+                            SoundManager.Instance.PlayWrong();
                             SwapTile(otherTile);
                         }
                     });
